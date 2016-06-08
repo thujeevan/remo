@@ -1,0 +1,1 @@
+// TODO: configure store with api, thunk middlewares
