@@ -1,11 +1,15 @@
 import {Map, List, fromJS} from 'immutable';
 import {combineReducers} from 'redux';
+import {loadData} from '../storage/localStorage';
 
 import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_REQUEST} from '../actions';
 
+// TODO: specify session key as a constant
+const session = loadData('remo-session');
 export const AUTH_INITIAL_STATE = fromJS({
     isFetching: false, 
-    isAuthenticated: false
+    isAuthenticated: session && session.token ? true : false,
+    session
 });
 
 const authReducers = {
