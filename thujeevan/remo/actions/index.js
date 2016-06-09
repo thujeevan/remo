@@ -1,5 +1,6 @@
 import {CALL_API, API_ROOT} from '../middleware/api';
 import {Schemas} from '../middleware/schema';
+import {saveData} from '../storage/localStorage';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -43,16 +44,18 @@ export function loginUser(creds) {
     
     return dispatch => {
         dispatch(requestLogin(creds));
-        return fetch(`${API_ROOT}/session/current`, config).then(res => {
+        return fetch(`${API_ROOT}/sessions/current`, config).then(res => {
             return res.json().then(json => ({res, json}));
         }).then(({res, json}) => {
             if (!res.ok) {
                 dispatch(loginError(json));
                 return Promise.reject(json);
             }
-            
-            localStorage.setItem('remo-session', json);
+            const {session} = json;
+            saveData('remo-session', session);
             dispatch(receiveLogin(json));
+        }).catch((error) => {
+            dispatch(loginError(error));
         });
     }
 }
