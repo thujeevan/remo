@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import NavLink from './NavLink';
 
-const NavBar = ({isAuthenticated}) => {
+const NavBar = ({isAuthenticated, isFetching, session}) => {
     const renderLink = () => {
         if (isAuthenticated) {
-            return <NavLink to="#">Logged in as ...</NavLink>;
+            return <NavLink to="#">Logged in as {session.full_name}</NavLink>;
         }
         return <NavLink to="/auth/login">Login</NavLink>;
     };
