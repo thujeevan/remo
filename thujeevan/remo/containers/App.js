@@ -1,20 +1,14 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
-import NavBar from '../components/NavBar';
+import NavBar from '../containers/NavBar';
 
-export default class App extends Component {
-    constructor(props) {
-        super(props);
-    }
-    
-    render() {
-        const {children} = this.props;
-        
-        return (
-            <div>
-                <NavBar />
-                <div className="container">{children}</div>
-            </div>
-        )
-    }
+const App = ({children}) => {
+    return (
+        <div>
+            <NavBar />
+            <div className="container">{children}</div>
+        </div>
+    )
 }
+
+export default App;
