@@ -54,8 +54,9 @@ export function loginUser(creds) {
             const {session} = json;
             saveData('remo-session', session);
             dispatch(receiveLogin(json));
-        }).catch((error) => {
+        }).catch(error => {
             dispatch(loginError(error));
+            return Promise.reject(error);
         });
     }
 }
