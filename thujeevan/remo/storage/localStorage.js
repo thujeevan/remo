@@ -18,3 +18,11 @@ export const saveData = (key, payload) => {
         console.log("Error: ", e);
     }
 }
+
+export const removeData = (key) => {
+    try {
+        localStorage.removeItem(key);
+    } catch (e) {
+        console.log("Error: ", e);
+    }
+}
