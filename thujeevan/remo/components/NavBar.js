@@ -6,7 +6,7 @@ const NavBar = (props) => {
     const handleLogout = (e) => {
         e.preventDefault();
         logoutUser();
-        router.replace('/');
+        router.replace('/auth/login');
     };
     const renderLink = () => {
         if (isAuthenticated) {
@@ -22,7 +22,9 @@ const NavBar = (props) => {
         <nav className="navbar navbar-default">
             <div className="container-fluid">
                 <div className="navbar-header">
-                    <NavLink onlyActiveOnIndex={true} to="/" className="navbar-brand">REMO</NavLink>
+                    <NavLink onlyActiveOnIndex={true} to="/" className="navbar-brand">
+                        <i className="fa fa-home"></i> REMO
+                    </NavLink>
                 </div>
                 <div className="collapse navbar-collapse">                  
                     <ul className="nav navbar-nav navbar-right">
