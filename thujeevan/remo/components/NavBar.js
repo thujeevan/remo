@@ -1,10 +1,20 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import NavLink from './NavLink';
 
-const NavBar = ({isAuthenticated, isFetching, session}) => {
+const NavBar = (props) => {
+    const { auth: {isAuthenticated, isFetching, session}, logoutUser, router } = props;
+    const handleLogout = (e) => {
+        e.preventDefault();
+        logoutUser();
+        router.replace('/');
+    };
     const renderLink = () => {
         if (isAuthenticated) {
-            return <NavLink to="#">Logged in as {session.full_name}</NavLink>;
+            return (
+                <p className="navbar-text">
+                    Logged in as {session.full_name} (<a href="#" onClick={handleLogout}>logout</a>)
+                </p>
+            );
         }
         return <NavLink to="/auth/login">Login</NavLink>;
     };
@@ -22,6 +32,20 @@ const NavBar = ({isAuthenticated, isFetching, session}) => {
             </div>
         </nav>
     );
+};
+
+NavBar.propTypes = {
+    auth: PropTypes.shape({
+        isAuthenticated: PropTypes.bool.isRequired,
+        isFetching: PropTypes.bool.isRequired,
+        session: PropTypes.shape({
+            full_name: PropTypes.string
+        })
+    }),
+    router: PropTypes.shape({
+        replace: PropTypes.func.isRequired
+    }),
+    logoutUser: PropTypes.func.isRequired
 };
 
 export default NavBar;
