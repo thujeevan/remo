@@ -1,3 +1,5 @@
+export const SESSION_KEY = 'remo-session';
+
 export const loadData = (key) => {
     try {
         const serialized = localStorage.getItem(key);

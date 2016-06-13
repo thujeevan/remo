@@ -1,6 +1,6 @@
 import {CALL_API, API_ROOT} from '../middleware/api';
 import {Schemas} from '../middleware/schema';
-import {saveData} from '../storage/localStorage';
+import {saveData, SESSION_KEY} from '../storage/localStorage';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -52,7 +52,7 @@ export function loginUser(creds) {
                 return Promise.reject(json);
             }
             const {session} = json;
-            saveData('remo-session', session);
+            saveData(SESSION_KEY, session);
             dispatch(receiveLogin(json));
         }).catch(error => {
             dispatch(loginError(error));
@@ -67,24 +67,20 @@ export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
 
 function requestLogout() {
     return {
-        type: LOGOUT_REQUEST,
-        isAuthenticated: true,
-        isFetching: true
+        type: LOGOUT_REQUEST
     };
 }
 
 function receiveLogout() {
     return {
-        type: LOGOUT_SUCCESS,
-        isAuthenticated: false,
-        isFetching: false
+        type: LOGOUT_SUCCESS
     }
 }
 
 export function logoutUser() {
     return dispatch => {
         dispatch(requestLogout());
-        localStorage.removeItem('remo-session');
+        localStorage.removeItem(SESSION_KEY);
         dispatch(receiveLogout());
     }
 }
