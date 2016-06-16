@@ -13,7 +13,10 @@ import {
     LOGIN_SUCCESS,
     LOGIN_FAILURE,
     LOGOUT_REQUEST,
-    LOGOUT_SUCCESS
+    LOGOUT_SUCCESS,
+    USERS_REQUEST,
+    USERS_SUCCESS,
+    USERS_FAILURE
 } from '../actions';
 
 describe('reducer', () => {
@@ -127,5 +130,83 @@ describe('reducer', () => {
             expect(next.auth).to.equal(fromJS(nextAuth));
         });
         
+    });
+
+    describe('user', () => {
+        it ('handles USERS_REQUEST with default initial state', () => {
+            const action = {
+                type: USERS_REQUEST
+            };
+            const next = reducer({users: undefined}, action);
+            expect(next.users).to.equal(fromJS({isFetching: true, users: [], meta: {}}));
+        });
+        
+        it ('handles USERS_SUCCESS', () => {
+            const state = {
+                users: [{id: 1}, {id: 2}, {id: 3}],
+                meta: {
+                    total: 5
+                }
+            };
+            
+            const action = {
+                type: USERS_SUCCESS,
+                res: state
+            };
+            const next = reducer({users: undefined}, action);
+            expect(next.users).to.equal(fromJS(Object.assign({}, state, {isFetching: false})));
+        });
+        
+        it ('handles USERS_REQUEST with some intial state', () => {
+            const fetched = {
+                users: [{id: 1}, {id: 2}, {id: 3}],
+                meta: {
+                    total: 5
+                }
+            };
+            const actions = [{
+                type: USERS_SUCCESS,
+                res: fetched
+            }, {
+                type: USERS_REQUEST
+            }];
+            const reduced = actions.reduce(reducer, {users: undefined});
+            expect(reduced.users).to.equal(fromJS(Object.assign({}, fetched, {isFetching: true})));
+        });
+        
+        it ('appends newly fetched users if existing users list is not empty', () => {
+            const initial = {
+                users: [{id: 1}, {id: 2}, {id: 3}],
+                meta: {
+                    total: 5
+                }
+            };
+            
+            const nextBatch = {
+                users: [{id: 4}, {id: 5}],
+                meta: {
+                    total: 5
+                }
+            };
+            
+            const actions = [{
+                type: USERS_SUCCESS,
+                res: initial
+            }, {
+                type: USERS_REQUEST
+            }, {
+                type: USERS_SUCCESS,
+                res: nextBatch
+            }];
+            
+            const reduced = actions.reduce(reducer, {users: undefined});
+            const final =  {
+                users: [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}],
+                meta: {
+                    total: 5
+                }
+            }
+            expect(reduced.users).to.equal(fromJS(Object.assign(final, {isFetching: false})));
+        });
     });
 });
