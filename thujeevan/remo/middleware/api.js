@@ -1,17 +1,23 @@
 import {normalize} from 'normalizr';
 import 'isomorphic-fetch';
 
+import {SESSION_KEY, loadData} from '../storage/localStorage';
+
 export const API_ROOT = "http://localhost:3000";
+const {token} = loadData(SESSION_KEY);
 
 function callApi(endpoint, schema) {
     const fullURL = (endpoint.indexOf(API_ROOT) === -1) ? `${API_ROOT}${endpoint}` : endpoint;
+    const config = {
+        headers: { Authorization: token }
+    };
     
-    return fetch(fullURL).then(res => res.json().then(json => ({json, res}))).then(({json, res}) => {
+    return fetch(fullURL, config).then(res => res.json().then(json => ({json, res}))).then(({json, res}) => {
         if (!res.ok) {
             return Promise.reject(json);
         }
-        
-        return Object.assign({}, normalize(json, schema));
+        return json;
+        // return Object.assign({}, normalize(json, schema));
     });
 };
 
@@ -34,9 +40,10 @@ export default store => next => action => {
         throw new Error('Specify a string endpoint URL.');
     }
     
-    if (!schema) {
-        throw new Error('Specify one of the exported schema.');
-    }
+    // TODO: uncomment once schema properly configured
+    // if (!schema) {
+    //     throw new Error('Specify one of the exported schema.');
+    // }
     
     if (!Array.isArray(types) || types.length !== 3) {
         throw new Error('Expected an array of three action types');
@@ -53,10 +60,10 @@ export default store => next => action => {
     }
     
     const [requestType, successType, failureType] = types;
-    next(actionWith({type: requestType, isFetching: true}));
+    next(actionWith({type: requestType}));
     
     return callApi(endpoint, schema).then(
-        res => next(actionWith({res, type: successType, isAuthenticated: true})), 
+        res => next(actionWith({res, type: successType})), 
         error => next(actionWith({error, type: failureType}))
     );
 }
