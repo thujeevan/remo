@@ -85,15 +85,17 @@ export function logoutUser() {
     }
 }
 
-export function fetchData() {
+export const USERS_REQUEST = 'USERS_REQUEST';
+export const USERS_SUCCESS = 'USERS_SUCCESS';
+export const USERS_FAILURE = 'USERS_FAILURE';
+
+export function fetchUsers(query = {}) {
+    let endpoint = '/users';
+    endpoint += '?' + Object.keys(query).map(key => `${key}=${query[key]}`).join('&');
     return {
         [CALL_API]: {
-            types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE],
-            endpoint: `/sesssion/current`,
-            schema: Schemas.SESSION
-        },
-        isAuthenticated: false,
-        isFetching: false,
-        creds
+            types: [USERS_REQUEST, USERS_SUCCESS, USERS_FAILURE],
+            endpoint
+        }
     }
 }
