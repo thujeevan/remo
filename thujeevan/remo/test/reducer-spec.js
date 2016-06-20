@@ -143,7 +143,7 @@ describe('reducer', () => {
         
         it ('handles USERS_SUCCESS', () => {
             const state = {
-                users: [{id: 1}, {id: 2}, {id: 3}],
+                users: [1, 2, 3],
                 meta: {
                     total: 5
                 }
@@ -151,7 +151,9 @@ describe('reducer', () => {
             
             const action = {
                 type: USERS_SUCCESS,
-                res: state
+                res: {
+                    result: state
+                }
             };
             const next = reducer({users: undefined}, action);
             expect(next.users).to.equal(fromJS(Object.assign({}, state, {isFetching: false})));
@@ -159,14 +161,14 @@ describe('reducer', () => {
         
         it ('handles USERS_REQUEST with some intial state', () => {
             const fetched = {
-                users: [{id: 1}, {id: 2}, {id: 3}],
+                users: [1, 2, 3],
                 meta: {
                     total: 5
                 }
             };
             const actions = [{
                 type: USERS_SUCCESS,
-                res: fetched
+                res: {result: fetched}
             }, {
                 type: USERS_REQUEST
             }];
@@ -176,14 +178,14 @@ describe('reducer', () => {
         
         it ('appends newly fetched users if existing users list is not empty', () => {
             const initial = {
-                users: [{id: 1}, {id: 2}, {id: 3}],
+                users: [1, 2, 3],
                 meta: {
                     total: 5
                 }
             };
             
             const nextBatch = {
-                users: [{id: 4}, {id: 5}],
+                users: [4, 5],
                 meta: {
                     total: 5
                 }
@@ -191,17 +193,17 @@ describe('reducer', () => {
             
             const actions = [{
                 type: USERS_SUCCESS,
-                res: initial
+                res: {result: initial}
             }, {
                 type: USERS_REQUEST
             }, {
                 type: USERS_SUCCESS,
-                res: nextBatch
+                res: {result: nextBatch}
             }];
             
             const reduced = actions.reduce(reducer, {users: undefined});
             const final =  {
-                users: [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}],
+                users: [1, 2, 3, 4, 5],
                 meta: {
                     total: 5
                 }
