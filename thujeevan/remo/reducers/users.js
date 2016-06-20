@@ -13,7 +13,7 @@ const usersReducers = {
             isFetching: true
         });
     },
-    [USERS_SUCCESS]: (state, {res: {users, meta}}) => {
+    [USERS_SUCCESS]: (state, {res: {result: {meta, users}}}) => {
         const updated = state.get('users').concat(fromJS(users));
         return state.set('isFetching', false)
                 .set('meta', fromJS(meta))
