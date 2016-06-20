@@ -1,5 +1,5 @@
 import {CALL_API, API_ROOT} from '../middleware/api';
-import {Schemas} from '../middleware/schema';
+import {Schemas, options as normalizeOptions} from '../middleware/schema';
 import {saveData, SESSION_KEY} from '../storage/localStorage';
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
@@ -92,10 +92,16 @@ export const USERS_FAILURE = 'USERS_FAILURE';
 export function fetchUsers(query = {}) {
     let endpoint = '/users';
     endpoint += '?' + Object.keys(query).map(key => `${key}=${query[key]}`).join('&');
+    
+    const {USER_SCHEMA} = Schemas;
+    const {USER_SCHEMA: options} = normalizeOptions;
+    
     return {
         [CALL_API]: {
             types: [USERS_REQUEST, USERS_SUCCESS, USERS_FAILURE],
-            endpoint
+            endpoint,
+            schema: USER_SCHEMA,
+            options 
         }
     }
 }
