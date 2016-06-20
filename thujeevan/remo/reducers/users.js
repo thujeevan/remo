@@ -31,3 +31,15 @@ export default function users(state = USERS_INITIAL_STATE, action) {
     let reducer = usersReducers[action.type] || (state => state);
     return reducer(state, action);
 }
+
+// user list selector
+export const getUserList = (state, entities) => {
+    const ids = state.get('users');
+    return ids.map(uid => {
+        let user = entities.getIn(['users', uid]);
+        const primary = entities.getIn(['groups', user.get('primary_group')]);
+        const groups = user.get('groups').map(uid => entities.getIn(['groups', uid]));
+        
+        return user.set('primary_group', primary).set('groups', groups);;
+    });
+}
