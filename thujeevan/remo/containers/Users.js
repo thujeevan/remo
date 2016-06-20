@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import {withRouter} from 'react-router';
 import {connect} from 'react-redux';
-import {fetchUsers} from '../actions';
 
+import {fetchUsers} from '../actions';
+import {getUserList} from '../reducers/users';
 import UserList from '../components/UserList';
 
 class Users extends Component {
@@ -42,7 +43,7 @@ class Users extends Component {
     }
 }
 
-function mapStateToProps({users}, ownProps) {
+function mapStateToProps({users, entities}, ownProps) {
     const {location : {query: {page = 1}}} = ownProps;     
     const total = users.getIn(['meta', 'total']);
     const pages = Math.ceil(total/50);
@@ -50,7 +51,7 @@ function mapStateToProps({users}, ownProps) {
     return {
         hasNextPage: page < pages,
         isNextPageLoading: users.get('isFetching'),
-        list: users.get('users')
+        list: getUserList(users, entities)
     }
 }
 
