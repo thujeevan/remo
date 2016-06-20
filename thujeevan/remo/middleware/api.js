@@ -6,7 +6,7 @@ import {SESSION_KEY, loadData} from '../storage/localStorage';
 export const API_ROOT = "http://localhost:3000";
 const {token} = loadData(SESSION_KEY);
 
-function callApi(endpoint, schema) {
+function callApi(endpoint, schema, options = {}) {
     const fullURL = (endpoint.indexOf(API_ROOT) === -1) ? `${API_ROOT}${endpoint}` : endpoint;
     const config = {
         headers: { Authorization: token }
@@ -16,8 +16,8 @@ function callApi(endpoint, schema) {
         if (!res.ok) {
             return Promise.reject(json);
         }
-        return json;
-        // return Object.assign({}, normalize(json, schema));
+        const normalized = Object.assign({}, normalize(json, schema, options));
+        return normalized;
     });
 };
 
@@ -30,7 +30,7 @@ export default store => next => action => {
     }
     
     let {endpoint} = callAPI;
-    const {schema, types} = callAPI;
+    const {schema, options, types} = callAPI;
     
     if (typeof endpoint === 'function') {
         endpoint = endpoint(store.getState());
@@ -40,10 +40,9 @@ export default store => next => action => {
         throw new Error('Specify a string endpoint URL.');
     }
     
-    // TODO: uncomment once schema properly configured
-    // if (!schema) {
-    //     throw new Error('Specify one of the exported schema.');
-    // }
+    if (!schema) {
+        throw new Error('Specify one of the exported schema.');
+    }
     
     if (!Array.isArray(types) || types.length !== 3) {
         throw new Error('Expected an array of three action types');
@@ -62,7 +61,7 @@ export default store => next => action => {
     const [requestType, successType, failureType] = types;
     next(actionWith({type: requestType}));
     
-    return callApi(endpoint, schema).then(
+    return callApi(endpoint, schema, options).then(
         res => next(actionWith({res, type: successType})), 
         error => next(actionWith({error, type: failureType}))
     );
