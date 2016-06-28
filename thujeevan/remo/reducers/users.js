@@ -32,14 +32,23 @@ export default function users(state = USERS_INITIAL_STATE, action) {
     return reducer(state, action);
 }
 
+function ammendGroupInfo(user, entities) {
+    const primary = entities.getIn(['groups', user.get('primary_group')]);
+    const groups = user.get('groups').map(uid => entities.getIn(['groups', uid]));
+    
+    return user.set('primary_group', primary).set('groups', groups);
+}
+
 // user list selector
 export const getUserList = (state, entities) => {
     const ids = state.get('users');
     return ids.map(uid => {
         let user = entities.getIn(['users', uid]);
-        const primary = entities.getIn(['groups', user.get('primary_group')]);
-        const groups = user.get('groups').map(uid => entities.getIn(['groups', uid]));
-        
-        return user.set('primary_group', primary).set('groups', groups);;
+        return ammendGroupInfo(user, entities);
     });
+}
+
+export const getUserByUID = (state, entities, uid) => {
+    let user = entities.getIn(['users', uid]);
+    return ammendGroupInfo(user, entities);
 }
