@@ -1,4 +1,7 @@
 import React, {Component, PropTypes} from 'react';
+import BsNavBar from 'react-bootstrap/lib/Navbar';
+import BsNav from 'react-bootstrap/lib/Nav';
+
 import NavLink from './NavLink';
 
 const NavBar = (props) => {
@@ -19,20 +22,20 @@ const NavBar = (props) => {
         return <NavLink to="/auth/login">Login</NavLink>;
     };
     return (
-        <nav className="navbar navbar-default navbar-fixed-top">
-            <div className="container-fluid">
-                <div className="navbar-header">
-                    <NavLink onlyActiveOnIndex={true} to="/" className="navbar-brand">
+        <BsNavBar fixedTop fluid>
+            <BsNavBar.Header>
+                <BsNavBar.Brand>
+                    <NavLink onlyActiveOnIndex={true} to="/">
                         <i className="fa fa-home"></i> REMO
                     </NavLink>
-                </div>
-                <div className="collapse navbar-collapse">                  
-                    <ul className="nav navbar-nav navbar-right">
-                        <li>{renderLink()}</li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+                </BsNavBar.Brand>
+            </BsNavBar.Header>
+            <BsNavBar.Collapse>                  
+                <BsNav pullRight>
+                    <li>{renderLink()}</li>
+                </BsNav>
+            </BsNavBar.Collapse>
+        </BsNavBar>
     );
 };
 
