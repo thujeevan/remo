@@ -4,10 +4,11 @@ import 'isomorphic-fetch';
 import {SESSION_KEY, loadData} from '../storage/localStorage';
 
 export const API_ROOT = "http://localhost:3000";
-const {token} = loadData(SESSION_KEY);
 
 function callApi(endpoint, schema, options = {}) {
     const fullURL = (endpoint.indexOf(API_ROOT) === -1) ? `${API_ROOT}${endpoint}` : endpoint;
+    const {token} = loadData(SESSION_KEY);
+    
     const config = {
         headers: { Authorization: token }
     };
