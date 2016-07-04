@@ -23,13 +23,15 @@ const UserList = (props) => {
     
     const {children, ...other} = props;
     return (
-        <div>
-            <Panel header={<h3>Users</h3>}>
-                <ListGroup fill>
-                    <VirtualList {...other} rowRenderer={rowRenderer}/>
-                </ListGroup>
-            </Panel>
-            <div className="user-profile">{children}</div>
+        <div className="row">
+            <div className="col-md-10 col-md-offset-1">
+                <Panel header={<h3>Users</h3>}>
+                    <ListGroup fill>
+                        <VirtualList {...other} rowRenderer={rowRenderer}/>
+                    </ListGroup>
+                </Panel>
+                <div className="user-profile">{children}</div>
+            </div>            
         </div>        
     );
 };

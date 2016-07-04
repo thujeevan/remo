@@ -6,7 +6,7 @@ const App = ({children}) => {
     return (
         <div>
             <NavBar />
-            <div className="container">{children}</div>
+            <div className="container-fluid">{children}</div>
         </div>
     )
 }

@@ -4,7 +4,7 @@ import NavLink from './NavLink';
 const Dashboard = (props) => {
     const renderItem = ({heading, url, key}) => {
         return (
-            <div className="col-lg-2 col-md-2" key={key}>
+            <div className="col-lg-2 col-md-2 col-sm-12" key={key}>
                 <div className="panel panel-primary">
                     <div className="panel-heading">
                         <div className="row">
@@ -33,7 +33,9 @@ const Dashboard = (props) => {
     ];
     return (
         <div className="row">
-            {items.map(renderItem)}
+            <div className="col-md-10 col-md-offset-1">
+                <div className="row">{items.map(renderItem)}</div>
+            </div>   
         </div>
     )
 };
