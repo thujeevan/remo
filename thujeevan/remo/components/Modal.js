@@ -11,9 +11,11 @@ const Modal = (props) => {
             <BsModal.Body>
                 {body}
             </BsModal.Body>
-            <BsModal.Footer>
-                {footer}
-            </BsModal.Footer>
+            {footer ? (
+                <BsModal.Footer>
+                    {footer}
+                </BsModal.Footer>
+            ) : ""}
         </BsModal>
     );
     return modal;
@@ -22,7 +24,7 @@ const Modal = (props) => {
 Modal.propTypes = {
     title: PropTypes.string.isRequired,
     body: PropTypes.element.isRequired,
-    footer: PropTypes.element.isRequired
+    footer: PropTypes.element
 };
 
 export default Modal;
