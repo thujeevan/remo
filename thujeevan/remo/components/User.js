@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
-import {Map, List} from 'immutable';
+import {Map, List, fromJS} from 'immutable';
 import Button from 'react-bootstrap/lib/Button';
+import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
 import Form from 'react-bootstrap/lib/Form';
 import FormGroup from 'react-bootstrap/lib/FormGroup';
 import Col from 'react-bootstrap/lib/Col';
@@ -12,9 +13,13 @@ import Modal from '../components/Modal';
 class User extends Component {
     constructor(props) {
         super(props);
+        
+        const {user} = props;
         this.state = {
-            isOpen: false
-        }
+            isEditing: false,
+            isOpen: false,
+            user
+        };
     }
     componentDidMount() {
         this.showModal();
@@ -24,6 +29,20 @@ class User extends Component {
             isOpen: true
         });
     }
+    toggleEdit() {
+        const {isEditing} = this.state;
+        this.setState({
+            isEditing: !isEditing
+        });
+    }
+    rollback() {
+        const {user} = this.props;
+        this.setState({
+            user: user
+        }, () => {
+            this.toggleEdit();
+        });        
+    }
     hideModal() {
         const {onHideModal} = this.props;
         return this.setState({
@@ -32,34 +51,67 @@ class User extends Component {
             onHideModal && onHideModal();
         });
     }
+    onChange(e) {
+        const {user} = this.state;
+        const {name, value} = e.target;
+        this.setState({
+            user: user.set(name, value)
+        });
+    }
+    handleSubmit(e) {
+        e.preventDefault();
+        const {user} = this.state;
+        const {handleSubmit} = this.props;
+        handleSubmit(user.toJSON());
+    }
     render() {
-        const {isOpen} = this.state;
-        const {user} = this.props;
+        const {isOpen, isEditing, user} = this.state;
         
-        const renderFormGroup = (label, key) => {
-            const val = (typeof key === 'function') ? key(user) : user.get(key);
+        const createFormControl = (type) => (disabled = false) => (label, key, value) => {
+            if (isEditing && !disabled) {
+                return <FormControl type={type} name={key} value={value} onChange={this.onChange.bind(this)}/>;
+            }
+            return <FormControl.Static>{value}</FormControl.Static>;
+        }
+        
+        const renderFormGroup = (typeRenderer, label, key, value) => {
+            value = typeof value === 'function' ? value(user) : user.get(key);
             return (
                 <FormGroup>
                     <Col sm={2} componentClass={ControlLabel}>{label}</Col>
-                    <Col sm={10}><FormControl.Static>{val}</FormControl.Static></Col>
+                    <Col sm={10}>{typeRenderer(label, key, value)}</Col>
                 </FormGroup>
             );
         };
         
-        const body = (
-            <Form horizontal>
-                {renderFormGroup('Full Name', 'full_name')}
-                {renderFormGroup('Username', 'username')}
-                {renderFormGroup('Email', 'email')}
-                {renderFormGroup('Account Status', 'user_status')}
-                {renderFormGroup('User Role', 'role')}
-                {renderFormGroup('Primary Group', user => user.getIn(['primary_group', 'group_name']))}
-                {renderFormGroup('Groups', user => user.get("groups").map(group => group.get('group_name')).join(','))}
-            </Form>
-        );
+        const hasChanged = this.state.user != this.props.user;
+        const buttons = isEditing ? 
+                    <ButtonToolbar style={{display: 'inline-block'}}>
+                        <Button type="submit" bsStyle="primary" disabled={!hasChanged}>Save</Button> 
+                        <Button onClick={this.rollback.bind(this)}>Cancel</Button>
+                    </ButtonToolbar> : 
+                    <ButtonToolbar style={{display: 'inline-block'}}>
+                        <Button bsStyle="primary" onClick={this.toggleEdit.bind(this)}>Edit</Button>
+                        <Button onClick={this.hideModal.bind(this)}>Close</Button>
+                    </ButtonToolbar>;
         
-        const footer = (
-            <Button onClick={this.hideModal.bind(this)}>Close</Button>
+        // TODO: make other elements editable - select, radio
+        // currently only text fields editable
+        const text = createFormControl('text')();
+        const disabledText = createFormControl('text')(true);
+        const email = createFormControl('email')();
+        
+        const body = (
+            <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
+                {renderFormGroup(text, 'Full Name', 'full_name')}
+                {renderFormGroup(disabledText, 'Username', 'username')}
+                {renderFormGroup(email,'Email', 'email')}
+                {renderFormGroup(disabledText, 'Account Status', 'user_status')}
+                {renderFormGroup(disabledText, 'User Role', 'role')}
+                {renderFormGroup(disabledText, 'Primary Group', 'primary_group', user => user.getIn(['primary_group', 'group_name']))}
+                {renderFormGroup(disabledText, 'Groups', 'groups', user => user.get("groups").map(group => group.get('group_name')).join(','))}
+                {<div className="text-right">{buttons}</div>}
+            </Form>
         );
         
         const dialog = (
@@ -71,7 +123,6 @@ class User extends Component {
                 onHide={this.hideModal.bind(this)}
                 title={user.get('full_name')}
                 body={body}
-                footer={footer}
             />
         );
         return dialog;
@@ -83,7 +134,8 @@ User.propTypes = {
         groups: React.PropTypes.instanceOf(List),
         primary_group: React.PropTypes.instanceOf(Map)
     }),
-    onHideModal: PropTypes.func
+    onHideModal: PropTypes.func,
+    handleSubmit: PropTypes.func.isRequired
 };
 
 export default User;
