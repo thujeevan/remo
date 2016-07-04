@@ -93,14 +93,14 @@ export function fetchUsers(query = {}) {
     let endpoint = '/users';
     endpoint += '?' + Object.keys(query).map(key => `${key}=${query[key]}`).join('&');
     
-    const {USER_SCHEMA} = Schemas;
+    const {USERS_SCHEMA} = Schemas;
     const {USER_SCHEMA: options} = normalizeOptions;
     
     return {
         [CALL_API]: {
             types: [USERS_REQUEST, USERS_SUCCESS, USERS_FAILURE],
             endpoint,
-            schema: USER_SCHEMA,
+            schema: USERS_SCHEMA,
             options 
         }
     }
