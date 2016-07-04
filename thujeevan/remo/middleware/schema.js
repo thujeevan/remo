@@ -31,7 +31,8 @@ export const Schemas = {
     PERMISSION_ARRAY: arrayOf(permissionSchema),
     GROUP: groupSchema,
     GROUP_ARRAY: arrayOf(groupSchema),
-    USER_SCHEMA: {
+    USER_SCHEMA: userSchema,
+    USERS_SCHEMA: {
         users: arrayOf(userSchema)
     }
 };
