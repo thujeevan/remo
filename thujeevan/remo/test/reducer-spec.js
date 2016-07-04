@@ -6,6 +6,7 @@ import {
 import {
     expect
 } from 'chai';
+import merge from 'lodash/merge';
 
 import reducer from '../reducers';
 import {
@@ -16,7 +17,9 @@ import {
     LOGOUT_SUCCESS,
     USERS_REQUEST,
     USERS_SUCCESS,
-    USERS_FAILURE
+    USERS_FAILURE,
+    USER_UPDATE_REQUEST,
+    USER_UPDATE_SUCCESS
 } from '../actions';
 
 describe('reducer', () => {
@@ -209,6 +212,153 @@ describe('reducer', () => {
                 }
             }
             expect(reduced.users).to.equal(fromJS(Object.assign(final, {isFetching: false})));
+        });
+    });
+    
+    describe('entities', () => {        
+        it ('handles USERS_SUCCESS - add entities', () => {            
+            const users = {
+                1: { uid: 1},
+                2: { uid: 2},
+                3: { uid: 3}
+            };
+            
+            const action = {
+                type: USERS_SUCCESS,
+                res: {
+                    result: {
+                        meta: {}
+                    },
+                    entities: {
+                        users
+                    }
+                }
+            };
+            const next = reducer(undefined, action);
+            expect(next.entities.users).to.equal(fromJS(Object.assign({}, users)));
+        });
+        it ('merge entities when next batch comes', () => {            
+            const first = {
+                1: { uid: 1},
+                2: { uid: 2},
+                3: { uid: 3}
+            };
+            
+            const second = {
+                4: { uid: 4},
+                5: { uid: 5},
+                6: { uid: 6}
+            };
+            
+            const action = {
+                type: USERS_SUCCESS,
+                res: {
+                    result: {
+                        meta: {}
+                    },
+                    entities: {
+                        users: {}
+                    }
+                }
+            };
+            const act1 = merge({}, action, {res: {entities: {users: first}}});
+            const act2 = merge({}, action, {res: {entities: {users: second}}});
+            
+            const actions = [act1, act2];
+            
+            const final = actions.reduce(reducer, undefined);
+            expect(final.entities.users).to.equal(fromJS(Object.assign({}, first, second)));
+        });
+        it ('eliminates duplicate entities while merging', () => {            
+            const first = {
+                1: { uid: 1},
+                2: { uid: 2},
+                3: { uid: 3}
+            };
+            
+            const second = {
+                3: { uid: 3},
+                5: { uid: 5},
+                6: { uid: 6}
+            };
+            
+            const action = {
+                type: USERS_SUCCESS,
+                res: {
+                    result: {
+                        meta: {}
+                    },
+                    entities: {
+                        users: {}
+                    }
+                }
+            };
+            const act1 = merge({}, action, {res: {entities: {users: first}}});
+            const act2 = merge({}, action, {res: {entities: {users: second}}});
+            
+            const actions = [act1, act2];
+            
+            const final = actions.reduce(reducer, undefined);
+            expect(final.entities.users).to.equal(fromJS(Object.assign({}, first, second)));
+        });
+        
+        it ('handles USER_UPDATE_REQUEST', () => {            
+            const users = {
+                1: { uid: 1},
+                2: { uid: 2},
+                3: { uid: 3}
+            };
+            
+            const action = {
+                type: USER_UPDATE_REQUEST,
+                user: {
+                    uid: 1
+                }
+            };
+            const initial = {
+                entities: {
+                    users: fromJS(users)
+                }
+            }
+            const next = reducer(initial, action);
+            expect(next.entities.users.getIn(['1', 'isUpdating'])).to.equal(true);
+            expect(next.entities.users.getIn(['2', 'isUpdating'])).to.equal(undefined);
+        });
+        
+        it ('replaces corresponding data with the response on USER_UPDATE_SUCCESS', () => {            
+            const users = {
+                1: { uid: 1, name: "sample name"},
+                2: { uid: 2},
+                3: { uid: 3}
+            };
+            
+            const initialAction = {
+                type: USER_UPDATE_REQUEST,
+                user: {
+                    uid: 1
+                }
+            };
+            const updateAction = {
+                type: USER_UPDATE_SUCCESS,
+                res: {
+                    user: {
+                        uid: 1,
+                        name: 'updated sample name'
+                    }
+                }
+            };
+            const initial = {
+                entities: {
+                    users: fromJS(users)
+                }
+            }
+            
+            let next = reducer(initial, initialAction);
+            expect(next.entities.users.getIn(['1', 'isUpdating'])).to.equal(true);
+            expect(next.entities.users.getIn(['1', 'name'])).to.equal('sample name');
+            
+            next = reducer(next, updateAction);
+            expect(next.entities.users.getIn(['1', 'name'])).to.equal('updated sample name');
         });
     });
 });
