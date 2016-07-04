@@ -33,8 +33,8 @@ export default function users(state = USERS_INITIAL_STATE, action) {
 }
 
 function ammendGroupInfo(user, entities) {
-    const primary = entities.getIn(['groups', user.get('primary_group')]);
-    const groups = user.get('groups').map(uid => entities.getIn(['groups', uid]));
+    const primary = entities.groups.get(user.get('primary_group'));
+    const groups = user.get('groups').map(uid => entities.groups.get(uid));
     
     return user.set('primary_group', primary).set('groups', groups);
 }
@@ -43,12 +43,12 @@ function ammendGroupInfo(user, entities) {
 export const getUserList = (state, entities) => {
     const ids = state.get('users');
     return ids.map(uid => {
-        let user = entities.getIn(['users', uid]);
+        let user = entities.users.get(uid);
         return ammendGroupInfo(user, entities);
     });
 }
 
 export const getUserByUID = (state, entities, uid) => {
-    let user = entities.getIn(['users', uid]);
+    let user = entities.users.get(uid);
     return ammendGroupInfo(user, entities);
 }
