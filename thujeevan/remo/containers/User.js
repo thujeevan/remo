@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router';
 
+import {updateUser} from '../actions';
 import {getUserByUID} from '../reducers/users';
 import User from '../components/User';
 
@@ -19,4 +20,4 @@ const UserContainer = withRouter(({router, ...other}) => {
     return <User onHideModal={onHideModal} {...other} />;
 });
 
-export default connect(mapStateToProps)(UserContainer);
+export default connect(mapStateToProps, {handleSubmit: updateUser})(UserContainer);
