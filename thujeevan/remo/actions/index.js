@@ -1,4 +1,4 @@
-import {CALL_API, API_ROOT} from '../middleware/api';
+import {CALL_API, API_ROOT, METHOD_PUT, METHOD_POST} from '../middleware/api';
 import {Schemas, options as normalizeOptions} from '../middleware/schema';
 import {saveData, SESSION_KEY} from '../storage/localStorage';
 
@@ -103,5 +103,27 @@ export function fetchUsers(query = {}) {
             schema: USERS_SCHEMA,
             options 
         }
+    }
+}
+
+export const USER_UPDATE_REQUEST = 'USER_UPDATE_REQUEST';
+export const USER_UPDATE_SUCCESS = 'USER_UPDATE_SUCCESS';
+export const USER_UPDATE_FAILURE = 'USER_UPDATE_FAILURE';
+
+export function updateUser(user) {
+    const endpoint = `/users/${user.uid}`;
+    
+    const {USER_SCHEMA} = Schemas;
+    const {USER_SCHEMA: options} = normalizeOptions;
+    
+    return {
+        [CALL_API]: {
+            method: METHOD_PUT,
+            types: [USER_UPDATE_REQUEST, USER_UPDATE_SUCCESS, USER_UPDATE_FAILURE],
+            endpoint,
+            schema: USER_SCHEMA,
+            options 
+        },
+        user
     }
 }
