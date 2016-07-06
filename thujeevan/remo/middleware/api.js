@@ -30,7 +30,8 @@ const configureFetch = (endpoint, body, method = METHOD_GET) => (schema, options
     
     return fetch(fullURL, config).then(res => res.json().then(json => ({json, res}))).then(({json, res}) => {
         if (!res.ok) {
-            return Promise.reject(json);
+            const {status} = res;
+            return Promise.reject(Object.assign({}, {status}, {res: json}));
         }
         const normalized = Object.assign({}, normalize(json, schema, options));
         return normalized;
