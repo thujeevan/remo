@@ -19,8 +19,13 @@ import {
     USERS_SUCCESS,
     USERS_FAILURE,
     USER_UPDATE_REQUEST,
-    USER_UPDATE_SUCCESS
+    USER_UPDATE_SUCCESS,
+    USER_UPDATE_FAILURE,
+    REMOVE_ERROR,
+    CLEAR_ERRORS
 } from '../actions';
+
+import errorReducer from '../reducers/error';
 
 describe('reducer', () => {
     describe('auth', () => {
@@ -70,7 +75,12 @@ describe('reducer', () => {
             };
             const action = {
                 type: LOGIN_FAILURE,
-                message: "invalid credentials. please check and try again"
+                error: {
+                    res: {
+                        reason: 'Invalid username or password'
+                    },
+                    status: 400
+                }
             };
             const next = reducer({
                 auth: fromJS(initial)
@@ -78,8 +88,7 @@ describe('reducer', () => {
             
             expect(next.auth).to.equal(fromJS({
                 isFetching: false,
-                isAuthenticated: false,
-                message: "invalid credentials. please check and try again"
+                isAuthenticated: false
             }));
         });
         
@@ -359,6 +368,123 @@ describe('reducer', () => {
             
             next = reducer(next, updateAction);
             expect(next.entities.users.getIn(['1', 'name'])).to.equal('updated sample name');
+        });
+    });
+    
+    describe('errors', () => {        
+        it ('handles USERS_FAILURE - errors which follow common pattern', () => {
+            const action = {
+                type: USERS_FAILURE,
+                error: {
+                    res: {
+                        reason: 'Failed to fetch users'
+                    },
+                    status: 500
+                }
+            };
+            
+            const next = errorReducer(undefined, action);
+            expect(next.size).to.equal(1);
+            expect(next.getIn([0, 'reason'])).to.equal('Failed to fetch users');
+            expect(next.getIn([0, 'status'])).to.equal(500);
+        });
+        
+        it ('prepends error record', () => {
+            const ac1 = {
+                type: USERS_FAILURE,
+                error: {
+                    res: {
+                        reason: 'Failed to fetch users'
+                    },
+                    status: 500
+                }
+            };
+            
+            const ac2 = {
+                type: USER_UPDATE_FAILURE,
+                error: {
+                    res: {
+                        errors: []
+                    },
+                    status: 422
+                }
+            };
+            
+            const next = [ac1, ac2].reduce(errorReducer, undefined);
+            
+            expect(next.size).to.equal(2);
+            expect(next.getIn([0, 'errors']).length).to.equal(0);
+            expect(next.getIn([0, 'status'])).to.equal(422);
+            expect(next.getIn([1, 'reason'])).to.equal('Failed to fetch users');
+            expect(next.getIn([1, 'status'])).to.equal(500);
+        });
+        
+        it ('removes provided error', () => {
+            const ac1 = {
+                type: USERS_FAILURE,
+                error: {
+                    res: {
+                        reason: 'Failed to fetch users'
+                    },
+                    status: 500
+                }
+            };
+            
+            const ac2 = {
+                type: USER_UPDATE_FAILURE,
+                error: {
+                    res: {
+                        errors: []
+                    },
+                    status: 422
+                }
+            };
+            
+            let next = [ac1, ac2].reduce(errorReducer, undefined);
+            const error = next.get(0);
+            
+            const ac3 = {
+                type: REMOVE_ERROR,
+                error
+            }
+            
+            next = errorReducer(next, ac3);
+            
+            expect(next.size).to.equal(1);
+            expect(next.getIn([0, 'reason'])).to.equal('Failed to fetch users');
+            expect(next.getIn([0, 'status'])).to.equal(500);
+        });
+        
+        it ('clears errors', () => {
+            const ac1 = {
+                type: USERS_FAILURE,
+                error: {
+                    res: {
+                        reason: 'Failed to fetch users'
+                    },
+                    status: 500
+                }
+            };
+            
+            const ac2 = {
+                type: USER_UPDATE_FAILURE,
+                error: {
+                    res: {
+                        errors: []
+                    },
+                    status: 422
+                }
+            };
+            
+            let next = [ac1, ac2].reduce(errorReducer, undefined);
+            const error = next.get(0);
+            
+            const ac3 = {
+                type: CLEAR_ERRORS
+            }
+            
+            next = errorReducer(next, ac3);            
+            expect(next.size).to.equal(0);
         });
     });
 });
