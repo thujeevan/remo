@@ -30,7 +30,8 @@ const userEntityReducers = {
         return state.set(user.uid + '', fromJS(user));
     },
     [USER_UPDATE_FAILURE]: (state, action) => {
-        
+        const {user} = action;
+        return state.removeIn([user.uid + '', 'isUpdating']);
     }
 }
 

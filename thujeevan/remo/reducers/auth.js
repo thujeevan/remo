@@ -25,11 +25,10 @@ const authReducers = {
             session
         });
     },
-    [LOGIN_FAILURE]: (state, {message}) => {
+    [LOGIN_FAILURE]: (state, action) => {
         return state.merge({
             isFetching: false,
-            isAuthenticated: false,
-            message
+            isAuthenticated: false
         });
     },
     [LOGOUT_REQUEST]: (state) => {

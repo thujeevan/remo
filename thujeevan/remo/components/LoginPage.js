@@ -15,15 +15,14 @@ class LoginPage extends Component {
         let creds = Object.assign({}, this.state);
         let {loginUser, router, location} = this.props;
 
+        // TODO: remove router dependency
+        // handle with callback prop
         loginUser(creds).then(() => {
             if (location.state && location.state.nextPathname) {
               router.replace(location.state.nextPathname)
             } else {
               router.replace('/')
             }
-        }).catch((error) => {
-            // TODO: proper logging, error notifications
-            console.log(error);
         });
     }
     handleChange(e) {

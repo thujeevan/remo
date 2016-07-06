@@ -21,8 +21,7 @@ const usersReducers = {
     },
     [USERS_FAILURE]: (state, {error}) => {
         return state.merge({
-            isFetching: false,
-            error
+            isFetching: false
         });
     }
 };
