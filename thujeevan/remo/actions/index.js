@@ -127,3 +127,6 @@ export function updateUser(user) {
         user
     }
 }
+
+export const REMOVE_ERROR = 'REMOVE_ERROR';
+export const CLEAR_ERRORS = 'CLEAR_ERRORS';
