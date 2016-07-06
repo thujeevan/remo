@@ -20,13 +20,15 @@ function receiveLogin({session}) {
     };
 }
 
-function loginError({message}) {
+function loginError(error) {
     return {
         type: LOGIN_FAILURE,
-        message
+        error
     };
 } 
 
+// TODO: re-factor
+// possible candidate to generalize with api middleware
 export function loginUser(creds) {
     let config = {
         method: 'POST',
@@ -48,16 +50,13 @@ export function loginUser(creds) {
             return res.json().then(json => ({res, json}));
         }).then(({res, json}) => {
             if (!res.ok) {
-                dispatch(loginError(json));
-                return Promise.reject(json);
+                const {status} = res;
+                return Promise.reject({status, ...({res: json})});
             }
             const {session} = json;
             saveData(SESSION_KEY, session);
             dispatch(receiveLogin(json));
-        }).catch(error => {
-            dispatch(loginError(error));
-            return Promise.reject(error);
-        });
+        }).catch(error => dispatch(loginError(error)));
     }
 }
 
