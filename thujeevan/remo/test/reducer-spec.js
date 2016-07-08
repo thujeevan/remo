@@ -25,7 +25,7 @@ import {
     CLEAR_ERRORS
 } from '../actions';
 
-import errorReducer from '../reducers/error';
+import alertsReducer from '../reducers/alerts';
 
 describe('reducer', () => {
     describe('auth', () => {
@@ -383,7 +383,7 @@ describe('reducer', () => {
                 }
             };
             
-            const next = errorReducer(undefined, action);
+            const next = alertsReducer(undefined, action);
             expect(next.size).to.equal(1);
             expect(next.getIn([0, 'reason'])).to.equal('Failed to fetch users');
             expect(next.getIn([0, 'status'])).to.equal(500);
@@ -410,7 +410,7 @@ describe('reducer', () => {
                 }
             };
             
-            const next = [ac1, ac2].reduce(errorReducer, undefined);
+            const next = [ac1, ac2].reduce(alertsReducer, undefined);
             
             expect(next.size).to.equal(2);
             expect(next.getIn([0, 'errors']).length).to.equal(0);
@@ -440,7 +440,7 @@ describe('reducer', () => {
                 }
             };
             
-            let next = [ac1, ac2].reduce(errorReducer, undefined);
+            let next = [ac1, ac2].reduce(alertsReducer, undefined);
             const error = next.get(0);
             
             const ac3 = {
@@ -448,7 +448,7 @@ describe('reducer', () => {
                 error
             }
             
-            next = errorReducer(next, ac3);
+            next = alertsReducer(next, ac3);
             
             expect(next.size).to.equal(1);
             expect(next.getIn([0, 'reason'])).to.equal('Failed to fetch users');
@@ -476,15 +476,43 @@ describe('reducer', () => {
                 }
             };
             
-            let next = [ac1, ac2].reduce(errorReducer, undefined);
+            let next = [ac1, ac2].reduce(alertsReducer, undefined);
             const error = next.get(0);
             
             const ac3 = {
                 type: CLEAR_ERRORS
             }
             
-            next = errorReducer(next, ac3);            
+            next = alertsReducer(next, ac3);            
             expect(next.size).to.equal(0);
+        });
+        
+        it ('ids must be unique', () => {
+            const ac1 = {
+                type: USERS_FAILURE,
+                error: {
+                    res: {
+                        reason: 'Failed to fetch users'
+                    },
+                    status: 500
+                }
+            };
+            
+            const ac2 = {
+                type: USER_UPDATE_FAILURE,
+                error: {
+                    res: {
+                        errors: []
+                    },
+                    status: 422
+                }
+            };
+            
+            let next = [ac1, ac2].reduce(alertsReducer, undefined);
+            const e1 = next.get(0);
+            const e2 = next.get(1);
+                  
+            expect(e1.get('id')).to.not.equal(e2.get('id'));
         });
     });
 });
