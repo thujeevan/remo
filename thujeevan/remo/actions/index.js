@@ -16,6 +16,7 @@ function requestLogin(creds) {
 function receiveLogin({session}) {
     return {
         type: LOGIN_SUCCESS,
+        message: `Successfully logged in as ${session.full_name}`,
         session
     };
 }
@@ -72,7 +73,8 @@ function requestLogout() {
 
 function receiveLogout() {
     return {
-        type: LOGOUT_SUCCESS
+        type: LOGOUT_SUCCESS,
+        message: `Successfully logged out`
     }
 }
 
