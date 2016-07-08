@@ -26,7 +26,8 @@
     "react-router-redux": "^4.0.4",
     "react-virtualized": "^7.6.0",
     "redux": "^3.5.2",
-    "redux-thunk": "^2.1.0"
+    "redux-thunk": "^2.1.0",
+    "velocity-react": "^1.1.5"
   },
   "devDependencies": {
     "babel-core": "^6.9.1",
