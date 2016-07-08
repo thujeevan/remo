@@ -127,5 +127,18 @@ export function updateUser(user) {
     }
 }
 
-export const REMOVE_ERROR = 'REMOVE_ERROR';
-export const CLEAR_ERRORS = 'CLEAR_ERRORS';
+export const REMOVE_ALERT = 'REMOVE_ALERT';
+export const CLEAR_ALERTS = 'CLEAR_ALERTS';
+
+export function removeAlert(error) {
+    return {
+        type: REMOVE_ALERT,
+        error
+    }
+}
+
+export function clearAlerts() {
+    return {
+        type: CLEAR_ALERTS
+    }
+}
