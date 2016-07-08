@@ -1,12 +1,14 @@
-import {Map, List, fromJS, Record} from 'immutable';
+import {List} from 'immutable';
 import {v4} from 'node-uuid';
 
 import {
     LOGIN_FAILURE,
+    LOGIN_SUCCESS,
+    LOGOUT_SUCCESS,
     USERS_FAILURE, 
     USER_UPDATE_FAILURE, 
-    REMOVE_ERROR,
-    CLEAR_ERRORS
+    REMOVE_ALERT,
+    CLEAR_ALERTS
 } from '../actions';
 
 import {
@@ -16,7 +18,9 @@ import {
     NoPermissionError, 
     ValidationError, 
     NotFoundError
-} from '../errors';
+} from '../alerts/error';
+
+import {Success} from '../alerts/alert';
 
 const errorsMap = {
     400: BadRequestError,
@@ -27,21 +31,28 @@ const errorsMap = {
     500: InternalServerError
 }
 
-function shared(state, action) {
+function sharedErrorAlert(state, action) {
     const {error: {status, res}} = action;
-    const err = new errorsMap[status](res);
+    const err = new errorsMap[status]({status, ...res});
     return state.unshift(err);
 }
 
+function sharedSuccessAlert(state, {message}) {
+    const alert = new Success({message});
+    return state.unshift(alert);
+}
+
 const errorReducers = {
-    [LOGIN_FAILURE]: shared,
-    [USERS_FAILURE]: shared,
-    [USER_UPDATE_FAILURE]: shared,
-    [REMOVE_ERROR]: (state, action) => {
+    [LOGIN_FAILURE]: sharedErrorAlert,
+    [USERS_FAILURE]: sharedErrorAlert,
+    [USER_UPDATE_FAILURE]: sharedErrorAlert,
+    [LOGIN_SUCCESS]: sharedSuccessAlert,
+    [LOGOUT_SUCCESS]: sharedSuccessAlert,
+    [REMOVE_ALERT]: (state, action) => {
         const {error} = action;
         return state.remove(state.indexOf(error));
     },
-    [CLEAR_ERRORS]: (state, action) => {
+    [CLEAR_ALERTS]: (state, action) => {
         return state.clear();
     }
 }
@@ -52,3 +63,5 @@ function reducer(state = List(), action) {
 }
 
 export default reducer;
+
+export const getAlerts = (state => state);
