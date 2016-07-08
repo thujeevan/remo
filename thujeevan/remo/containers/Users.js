@@ -55,5 +55,12 @@ function mapStateToProps({users, entities}, ownProps) {
     }
 }
 
+Users.onEnter = (store, nextState, replace) => {
+    const {auth} = store.getState();
+    if (!auth.get('isAuthenticated')) {
+        return replace('/auth/login');
+    }
+};
+
 export default withRouter(connect(mapStateToProps, {fetchUsers})(Users));
 
