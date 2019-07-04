@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha --compilers js:babel-core/register --require ./test/helper.js \"test/**/*@(.js|.jsx)\""
+    "test": "mocha --compilers js:babel-core/register --require ./test/helper.js \"test/**/*@(.js|.jsx)\"",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +29,8 @@
     "react-virtualized": "^7.6.0",
     "redux": "^3.5.2",
     "redux-thunk": "^2.1.0",
-    "velocity-react": "^1.1.5"
+    "velocity-react": "^1.1.5",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "babel-core": "^6.9.1",
@@ -61,5 +64,6 @@
         ]
       }
     }
-  }
+  },
+  "snyk": true
 }
